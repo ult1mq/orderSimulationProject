@@ -1,0 +1,67 @@
+# gradle
+.gradle/
+build/
+out/
+
+# Kotlin/Java
+*.class
+*.jar
+*.war
+*.iml
+*.log
+
+# IDEs
+.idea/
+*.iws
+*.ipr
+*.iml
+*.swp
+*.swo
+.vscode/
+*.DS_Store
+
+# System
+Thumbs.db
+.DS_Store
+
+# OS
+ehthumbs.db
+Icon?
+Desktop.ini
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Docker
+**/db-data/
+**/order-db-data/
+**/product-db-data/
+**/user-db-data/
+*.pid
+
+# Test reports
+test-output/
+reports/
+*.test
+
+# Swagger/OpenAPI
+swagger-ui/
+openapi.yaml
+openapi.json
+
+# Ignore env files (если используешь)
+.env
+.env.*
+
+# Misc
+*.tmp
+*.bak
+*.orig
+*.rej
+
+# Ignore generated files
+bin/
