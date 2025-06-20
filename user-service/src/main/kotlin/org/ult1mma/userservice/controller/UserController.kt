@@ -8,9 +8,11 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.ult1mma.userservice.model.User
 import org.ult1mma.userservice.service.UserService
+import kotlin.random.Random
 
 @RestController
 @RequestMapping("/users")
@@ -50,5 +52,19 @@ class UserController(private val userService: UserService) {
         logger.info("Получен запрос: удалить пользователя id={}", id)
         userService.delete(id)
         logger.info("Пользователь с id={} удалён", id)
+    }
+    @PostMapping("/generate")
+    fun generateUsers(@RequestParam count: Int): List<User> {
+        logger.info("Запрошена генерация {} пользователей", count)
+        val generated = (1..count).map {
+            val user = User(
+                email = "user$it${Random.nextInt(10000)}@example.com",
+                password = "password", // если есть поле
+                name = "TestUser$it"
+            )
+            userService.create(user)
+        }
+        logger.info("Сгенерировано {} пользователей", generated.size)
+        return generated
     }
 }

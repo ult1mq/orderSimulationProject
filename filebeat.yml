@@ -1,0 +1,12 @@
+filebeat.inputs:
+  - type: log
+    enabled: true
+    paths:
+      - /logs/*.log    # будет забирать логи всех сервисов
+
+output.elasticsearch:
+  hosts: ["elasticsearch:9200"]
+  username: ""
+  password: ""
+setup.kibana:
+  host: "kibana:5601"
