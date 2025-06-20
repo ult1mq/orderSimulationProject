@@ -1,5 +1,6 @@
 package org.ult1mma.orderservice.service
 
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.ult1mma.orderservice.model.Order
 import org.ult1mma.orderservice.repository.OrderRepository
