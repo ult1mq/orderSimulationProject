@@ -7,23 +7,59 @@ import org.ult1mma.orderservice.repository.OrderRepository
 import reactor.core.publisher.Mono
 
 @Service
-class OrderService (private val orderRepo : OrderRepository,
-    private val external: ExternalServiceClient) {
-    fun getAll(): List<Order> = orderRepo.findAll()
-    fun getById(id: Long): Order? = orderRepo.findById(id).orElse(null)
+class OrderService(
+    private val orderRepo: OrderRepository,
+    private val external: ExternalServiceClient
+) {
+    private val logger = LoggerFactory.getLogger(OrderService::class.java)
+
+    fun getAll(): List<Order> {
+        logger.info("Получение всех заказов")
+        return orderRepo.findAll()
+    }
+
+    fun getById(id: Long): Order? {
+        logger.info("Запрос заказа по id={}", id)
+        val order = orderRepo.findById(id).orElse(null)
+        if (order == null) {
+            logger.warn("Заказ с id={} не найден", id)
+        } else {
+            logger.info("Заказ с id={} найден: {}", id, order)
+        }
+        return order
+    }
 
     fun create(order: Order): Mono<Order> {
-        val userExists  = external.checkUserExists(order.userId)
+        logger.info("Попытка создать заказ: {}", order)
+        val userExists = external.checkUserExists(order.userId)
         val productExists = external.checkProductExists(order.productId)
         return Mono.zip(userExists, productExists)
             .flatMap { tuple ->
                 val u = tuple.t1
                 val p = tuple.t2
-                if (!u) return@flatMap Mono.error<Order>(RuntimeException("User not found"))
-                if (!p) return@flatMap Mono.error<Order>(RuntimeException("Product not found"))
-                Mono.fromCallable { orderRepo.save(order) }
+                if (!u) {
+                    logger.warn("Пользователь с id={} не найден. Заказ не будет создан.", order.userId)
+                    return@flatMap Mono.error<Order>(RuntimeException("User not found"))
+                }
+                if (!p) {
+                    logger.warn("Товар с id={} не найден. Заказ не будет создан.", order.productId)
+                    return@flatMap Mono.error<Order>(RuntimeException("Product not found"))
+                }
+                logger.info("Пользователь и товар найдены. Создаём заказ для userId={}, productId={}", order.userId, order.productId)
+                Mono.fromCallable {
+                    val saved = orderRepo.save(order)
+                    logger.info("Заказ успешно сохранён: id={}", saved.id)
+                    saved
+                }
+            }
+            .doOnError { ex ->
+                logger.error("Ошибка при создании заказа: {}", ex.message)
             }
     }
 
-    fun delete(id: Long) = orderRepo.deleteById(id)
+    fun delete(id: Long) {
+        logger.info("Удаление заказа с id={}", id)
+        orderRepo.deleteById(id)
+        logger.info("Заказ с id={} удалён", id)
+    }
 }
