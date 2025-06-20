@@ -100,6 +100,16 @@ services:
       - ./logs:/logs:ro               # Логи сервисов (volume/logs общий для всех сервисов!)
       - ./filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
 
+  api-gateway:
+    build:
+      context: ./api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - user-service
+      - product-service
+      - order-service
+
 volumes:
   product-db-data:
   user-db-data:
