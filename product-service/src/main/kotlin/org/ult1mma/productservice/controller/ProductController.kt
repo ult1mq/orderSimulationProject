@@ -1,5 +1,6 @@
 package org.ult1mma.productservice.controller
 
+import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -16,16 +17,39 @@ import org.ult1mma.productservice.service.ProductService
 @RequestMapping("/products")
 class ProductController(val productService: ProductService) {
 
+    private val logger = LoggerFactory.getLogger(ProductController::class.java)
+
     @GetMapping
-    fun getAll() = productService.getAll()
+    fun getAll(): List<Product> {
+        logger.info("Получен запрос: получить все товары")
+        return productService.getAll()
+    }
 
     @GetMapping("/{id}")
-    fun getById(@PathVariable id: Long) =
-        (productService.getById(id)?.let { ResponseEntity.ok(it)} ?: ResponseEntity.notFound().build())
+    fun getById(@PathVariable id: Long): ResponseEntity<Product> {
+        logger.info("Получен запрос: получить товар по id={}", id)
+        val product = productService.getById(id)
+        return if (product != null) {
+            logger.info("Товар с id={} найден", id)
+            ResponseEntity.ok(product)
+        } else {
+            logger.warn("Товар с id={} не найден", id)
+            ResponseEntity.notFound().build()
+        }
+    }
 
     @PostMapping
-    fun create(@RequestBody product: Product) = productService.create(product)
+    fun create(@RequestBody product: Product): Product {
+        logger.info("Получен запрос: создать товар: {}", product)
+        val saved = productService.create(product)
+        logger.info("Товар создан: id={}", saved.id)
+        return saved
+    }
 
     @DeleteMapping("/{id}")
-    fun delete(@PathVariable id: Long) = productService.delete(id)
+    fun delete(@PathVariable id: Long) {
+        logger.info("Получен запрос: удалить товар id={}", id)
+        productService.delete(id)
+        logger.info("Товар с id={} удалён", id)
+    }
 }
