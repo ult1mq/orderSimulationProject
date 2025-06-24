@@ -1,12 +1,15 @@
 package org.ult1mma.userservice.service
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.ult1mma.userservice.model.User
 import org.ult1mma.userservice.repository.UserRepository
 
 @Service
-class UserService(private val userRepository: UserRepository) {
+class UserService(private val userRepository: UserRepository,
+    private val objectMapper: ObjectMapper,
+    private val cacheService: CacheService) {
 
     private val logger = LoggerFactory.getLogger(UserService::class.java)
 
@@ -19,11 +22,19 @@ class UserService(private val userRepository: UserRepository) {
 
     fun getById(id: Long): User? {
         logger.info("Запрос пользователя по id={}", id)
+        val cacheKey = "user:$id"
+        val cachedUserJson = cacheService.get(cacheKey)
+        if (cachedUserJson != null) {
+            logger.info("Найден пользователь в Redis id={}", id)
+            return objectMapper.readValue(cachedUserJson, User::class.java)
+        }
+
         val user = userRepository.findById(id).orElse(null)
         if (user == null) {
             logger.warn("Пользователь с id={} не найден", id)
         } else {
             logger.info("Пользователь с id={} найден: {}", id, user)
+            cacheService.save(cacheKey, objectMapper.writeValueAsString(user))
         }
         return user
     }
@@ -48,6 +59,7 @@ class UserService(private val userRepository: UserRepository) {
             logger.warn("Пользователь с таким id={} не найден", id)
             return
         }
+        cacheService.delete("user:$id")
         userRepository.deleteById(id)
         logger.info("Пользователь с id={} удалён", id)
     }

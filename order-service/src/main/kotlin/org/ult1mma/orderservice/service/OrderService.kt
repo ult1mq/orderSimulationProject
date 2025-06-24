@@ -37,6 +37,7 @@ class OrderService(
             logger.warn("Заказ с id={} не найден", id)
         } else {
             logger.info("Заказ с id={} найден: {}", id, order)
+            cacheService.save(cacheKey, objectMapper.writeValueAsString(order))
         }
         return order
     }

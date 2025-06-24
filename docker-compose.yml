@@ -14,12 +14,15 @@ services:
     build: ./product-service
     depends_on:
       - product-db
+      - redis
     ports:
       - "8081:8081"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://product-db:5432/productdb
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
     volumes:
       - ./logs:/logs
 
@@ -38,12 +41,15 @@ services:
     build: ./user-service
     depends_on:
       - user-db
+      - redis
     ports:
       - "8082:8082"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://user-db:5432/userdb
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
     volumes:
       - ./logs:/logs
 

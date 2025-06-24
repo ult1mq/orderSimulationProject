@@ -1,5 +1,6 @@
 package org.ult1mma.productservice.service
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.ult1mma.productservice.model.Product
@@ -7,7 +8,9 @@ import org.ult1mma.productservice.repository.ProductRepository
 
 
 @Service
-class ProductService(private val repo: ProductRepository) {
+class ProductService(private val repo: ProductRepository,
+    private val objectMapper: ObjectMapper,
+    private val cacheService: CacheService) {
 
     private val logger = LoggerFactory.getLogger(ProductService::class.java)
 
@@ -20,14 +23,21 @@ class ProductService(private val repo: ProductRepository) {
 
     fun getById(id: Long): Product? {
         logger.info("Запрос товара по id={}", id)
-        return try {
-            val product = repo.getById(id)
-            logger.info("Товар с id={} найден: {}", id, product)
-            product
-        } catch (ex: Exception) {
-            logger.warn("Товар с id={} не найден или произошла ошибка: {}", id, ex.message)
-            null
+        val cacheKey = "product:$id"
+        val cachedProductJson = cacheService.get(cacheKey)
+        if (cachedProductJson != null) {
+            logger.info("Найден продукт {} в Redis", id)
+            return objectMapper.readValue(cachedProductJson, Product::class.java)
         }
+        val product = repo.findById(id).orElse(null)
+        if (product == null) {
+            logger.warn("Продукт с id={} не найден", id)
+        } else {
+            logger.info("Продукт с id={} найден", id)
+            cacheService.save(cacheKey, objectMapper.writeValueAsString(product))
+        }
+        return product
+
     }
 
     fun create(product: Product): Product {
@@ -47,6 +57,7 @@ class ProductService(private val repo: ProductRepository) {
             logger.warn("Продукт с таким id={} не найден", id)
             return
         }
+        cacheService.delete("product:$id")
         repo.deleteById(id)
         logger.info("Товар с id={} удалён", id)
     }
