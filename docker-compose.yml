@@ -139,6 +139,10 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=secret   # поменяйте пароль администратора
     ports:
       - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
     depends_on:
       - prometheus
 
@@ -149,4 +153,4 @@ volumes:
   user-db-data:
   order-db-data:
   esdata:
-
+  grafana-data:
