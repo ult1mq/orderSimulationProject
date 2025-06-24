@@ -32,6 +32,10 @@ class ProductService(private val repo: ProductRepository) {
 
     fun create(product: Product): Product {
         logger.info("Создание товара: {}", product)
+        if (product.price < 0) {
+            logger.warn("Отрицательная стоимость товара id={}, не сохранен", product.id)
+            return product
+        }
         val saved = repo.save(product)
         logger.info("Товар успешно создан: id={}", saved.id)
         return saved
@@ -39,6 +43,10 @@ class ProductService(private val repo: ProductRepository) {
 
     fun delete(id: Long) {
         logger.info("Удаление товара с id={}", id)
+        if (!repo.existsById(id)) {
+            logger.warn("Продукт с таким id={} не найден", id)
+            return
+        }
         repo.deleteById(id)
         logger.info("Товар с id={} удалён", id)
     }

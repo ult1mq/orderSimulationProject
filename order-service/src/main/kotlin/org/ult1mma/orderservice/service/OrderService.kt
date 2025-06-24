@@ -15,7 +15,10 @@ class OrderService(
 
     fun getAll(): List<Order> {
         logger.info("Получение всех заказов")
-        return orderRepo.findAll()
+        val orders = orderRepo.findAll()
+        logger.info("Найдено {} заказов", orders.size)
+        return orders
+
     }
 
     fun getById(id: Long): Order? {
@@ -59,6 +62,10 @@ class OrderService(
 
     fun delete(id: Long) {
         logger.info("Удаление заказа с id={}", id)
+        if (!orderRepo.existsById(id)) {
+            logger.warn("Заказ с таким id={} не найден", id)
+            return
+        }
         orderRepo.deleteById(id)
         logger.info("Заказ с id={} удалён", id)
     }
