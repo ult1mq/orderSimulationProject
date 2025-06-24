@@ -63,12 +63,15 @@ services:
     build: ./order-service
     depends_on:
       - order-db
+      - redis
     ports:
       - "8083:8083"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://order-db:5432/orderdb
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
     volumes:
       - ./logs:/logs
 
@@ -109,6 +112,13 @@ services:
       - user-service
       - product-service
       - order-service
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
+
 
 volumes:
   product-db-data:

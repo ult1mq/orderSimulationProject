@@ -1,5 +1,6 @@
 package org.ult1mma.orderservice.service
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.ult1mma.orderservice.model.Order
@@ -9,7 +10,9 @@ import reactor.core.publisher.Mono
 @Service
 class OrderService(
     private val orderRepo: OrderRepository,
-    private val external: ExternalServiceClient
+    private val external: ExternalServiceClient,
+    private val cacheService: CacheService,
+    private val objectMapper: ObjectMapper
 ) {
     private val logger = LoggerFactory.getLogger(OrderService::class.java)
 
@@ -23,6 +26,12 @@ class OrderService(
 
     fun getById(id: Long): Order? {
         logger.info("Запрос заказа по id={}", id)
+        val cacheKey = "order:$id"
+        val cachedOrderJson = cacheService.get(cacheKey)
+        if (cachedOrderJson != null) {
+            logger.info("Найден заказ {} в Redis", id)
+            return objectMapper.readValue(cachedOrderJson, Order::class.java)
+        }
         val order = orderRepo.findById(id).orElse(null)
         if (order == null) {
             logger.warn("Заказ с id={} не найден", id)
@@ -66,6 +75,7 @@ class OrderService(
             logger.warn("Заказ с таким id={} не найден", id)
             return
         }
+        cacheService.delete("order:$id")
         orderRepo.deleteById(id)
         logger.info("Заказ с id={} удалён", id)
     }
