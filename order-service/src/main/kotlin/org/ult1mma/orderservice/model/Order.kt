@@ -17,6 +17,6 @@ data class Order (
     @Column(nullable = false)
     val productId: Long,
     val quantity: Long = 1,
-    val status: String = OrderStatus.NEW.name
+    val status: String = "NEW"
 ) {
 }
