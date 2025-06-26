@@ -31,7 +31,7 @@ graph TD
     C -- JDBC --> D3
 
     %% Кэширование
-    subgraph Cache[""]
+    subgraph Cache
       R[(Redis)]
     end
     A -- Cache user profiles --> R
@@ -39,7 +39,7 @@ graph TD
     C -- Cache order data --> R
 
     %% Мониторинг и визуализация
-    subgraph Monitoring[""]
+    subgraph Monitoring
       P[Prometheus]
       G[Grafana]
     end
@@ -49,12 +49,13 @@ graph TD
     P --> G
 
     %% Поиск и логирование
-    subgraph Search[""]
+    subgraph Search
       E[Elasticsearch]
     end
     A --> E
     B --> E
     C --> E
+
 
 ```
 
