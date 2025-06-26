@@ -16,8 +16,11 @@
 
 ```mermaid
 graph TD
+    %% Сервисы
     A[User-service] -- HTTP --> C[Order-service]
     B[Product-service] -- HTTP --> C[Order-service]
+
+    %% Базы данных
     subgraph Databases
       D1[(user-db)]
       D2[(product-db)]
@@ -26,6 +29,33 @@ graph TD
     A -- JDBC --> D1
     B -- JDBC --> D2
     C -- JDBC --> D3
+
+    %% Кэширование
+    subgraph Cache[""]
+      R[(Redis)]
+    end
+    A -- Cache user profiles --> R
+    B -- Cache product details --> R
+    C -- Cache order data --> R
+
+    %% Мониторинг и визуализация
+    subgraph Monitoring[""]
+      P[Prometheus]
+      G[Grafana]
+    end
+    A --> P
+    B --> P
+    C --> P
+    P --> G
+
+    %% Поиск и логирование
+    subgraph Search[""]
+      E[Elasticsearch]
+    end
+    A --> E
+    B --> E
+    C --> E
+
 ```
 
 | Микросервис     | Порт | Назначение                |
