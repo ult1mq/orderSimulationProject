@@ -70,14 +70,15 @@ class OrderService(
             }
     }
 
-    fun delete(id: Long) {
+    fun delete(id: Long) : Boolean {
         logger.info("Удаление заказа с id={}", id)
         if (!orderRepo.existsById(id)) {
             logger.warn("Заказ с таким id={} не найден", id)
-            return
+            return false
         }
         cacheService.delete("order:$id")
         orderRepo.deleteById(id)
         logger.info("Заказ с id={} удалён", id)
+        return true
     }
 }
