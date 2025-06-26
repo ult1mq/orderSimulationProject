@@ -1,7 +1,6 @@
 package org.ult1mma.orderservice.dto
 
 import org.ult1mma.orderservice.model.OrderStatus
-import java.math.BigDecimal
 
 data class OrderDto(
     val id: Long,
