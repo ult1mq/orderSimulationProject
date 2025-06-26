@@ -108,9 +108,11 @@ graph TD
 
 3. Откройте сервисы:
 
+   * [API Gateway Swagger](http://localhost:8080) - без swagger
    * [User-service Swagger](http://localhost:8082/swagger-ui.html)
    * [Product-service Swagger](http://localhost:8081/swagger-ui.html)
    * [Order-service Swagger](http://localhost:8083/swagger-ui.html)
+
 
 ---
 
