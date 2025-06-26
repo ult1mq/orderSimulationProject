@@ -10,6 +10,10 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import org.ult1mma.userservice.dto.CreateUserRequest
+import org.ult1mma.userservice.dto.UserDto
+import org.ult1mma.userservice.dto.toDto
+import org.ult1mma.userservice.dto.toEntity
 import org.ult1mma.userservice.model.User
 import org.ult1mma.userservice.service.UserService
 import kotlin.random.Random
@@ -21,18 +25,18 @@ class UserController(private val userService: UserService) {
     private val logger = LoggerFactory.getLogger(UserController::class.java)
 
     @GetMapping
-    fun getAll(): List<User> {
+    fun getAll(): List<UserDto> {
         logger.info("Получен запрос: получить всех пользователей")
-        return userService.getAll()
+        return userService.getAll().map{ it.toDto() }
     }
 
     @GetMapping("/{id}")
-    fun getById(@PathVariable id: Long): ResponseEntity<User> {
+    fun getById(@PathVariable id: Long): ResponseEntity<UserDto> {
         logger.info("Получен запрос: получить пользователя по id={}", id)
         val user = userService.getById(id)
         return if (user != null) {
             logger.info("Пользователь с id={} найден", id)
-            ResponseEntity.ok(user)
+            ResponseEntity.ok(user.toDto())
         } else {
             logger.warn("Пользователь с id={} не найден", id)
             ResponseEntity.notFound().build()
@@ -40,11 +44,12 @@ class UserController(private val userService: UserService) {
     }
 
     @PostMapping
-    fun create(@RequestBody user: User): User {
+    fun create(@RequestBody user: CreateUserRequest): UserDto {
         logger.info("Получен запрос: создать пользователя: {}", user)
-        val saved = userService.create(user)
+        val userEntity = user.toEntity()
+        val saved = userService.create(userEntity)
         logger.info("Пользователь создан: id={}", saved.id)
-        return saved
+        return saved.toDto()
     }
 
     @DeleteMapping("/{id}")
@@ -54,7 +59,7 @@ class UserController(private val userService: UserService) {
         logger.info("Пользователь с id={} удалён", id)
     }
     @PostMapping("/generate")
-    fun generateUsers(@RequestParam count: Int): List<User> {
+    fun generateUsers(@RequestParam count: Int): List<UserDto> {
         logger.info("Запрошена генерация {} пользователей", count)
         val generated = (1..count).map {
             val user = User(
@@ -65,6 +70,6 @@ class UserController(private val userService: UserService) {
             userService.create(user)
         }
         logger.info("Сгенерировано {} пользователей", generated.size)
-        return generated
+        return generated.map{ it.toDto() }
     }
 }
