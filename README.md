@@ -82,6 +82,7 @@ graph TD
 * **User-service:** [http://localhost:8082/swagger-ui.html](http://localhost:8082/swagger-ui.html)
 * **Product-service:** [http://localhost:8081/swagger-ui.html](http://localhost:8081/swagger-ui.html)
 * **Order-service:** [http://localhost:8083/swagger-ui.html](http://localhost:8083/swagger-ui.html)
+*  **API Gateway:** [http://localhost:8080/swagger-ui.html]
 
 > Через Swagger вы можете просматривать документацию, выполнять тестовые запросы, видеть все доступные эндпоинты и схемы данных.
 
@@ -109,7 +110,7 @@ graph TD
 
 3. Откройте сервисы:
 
-   * [API Gateway Swagger](http://localhost:8080) - без swagger
+   * [API Gateway](http://localhost:8080) - без swagger
    * [User-service Swagger](http://localhost:8082/swagger-ui.html)
    * [Product-service Swagger](http://localhost:8081/swagger-ui.html)
    * [Order-service Swagger](http://localhost:8083/swagger-ui.html)
