@@ -16,6 +16,11 @@
 
 ```mermaid
 graph TD
+    %% API Gateway
+    G[API Gateway] -- HTTP --> A[User-service]
+    G -- HTTP --> B[Product-service]
+    G -- HTTP --> C[Order-service]
+
     %% Сервисы
     A[User-service] -- HTTP --> C[Order-service]
     B[Product-service] -- HTTP --> C[Order-service]
@@ -26,9 +31,9 @@ graph TD
       D2[(product-db)]
       D3[(order-db)]
     end
-    A -- JDBC --> D1
-    B -- JDBC --> D2
-    C -- JDBC --> D3
+    A -- JPA --> D1
+    B -- JPA --> D2
+    C -- JPA --> D3
 
     %% Кэширование
     subgraph Cache
@@ -41,12 +46,12 @@ graph TD
     %% Мониторинг и визуализация
     subgraph Monitoring
       P[Prometheus]
-      G[Grafana]
+      Gf[Grafana]
     end
     A --> P
     B --> P
     C --> P
-    P --> G
+    P --> Gf
 
     %% Поиск и логирование
     subgraph Search
@@ -57,6 +62,7 @@ graph TD
     C --> E
 
 
+
 ```
 
 | Микросервис     | Порт | Назначение                |
@@ -64,6 +70,7 @@ graph TD
 | User-service    | 8082 | Управление пользователями |
 | Product-service | 8081 | Управление товарами       |
 | Order-service   | 8083 | Управление заказами       |
+| API Gateway     | 8080 | Шлюз API                  |
 
 ---
 
